@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Quran Reader</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+    <header class="topbar">
+
+        <div class="topbar-title">
+            Quran Reader
+        </div>
+
+
+        <div
+            id="pageInfo"
+            class="page-info"
+        >
+            Seiten 2 – 1
+        </div>
+
+
+        <div class="toolbar">
+
+            <button
+                id="surahButton"
+                class="toolbar-button"
+                type="button"
+                title="Suren-Index (Inhaltsverzeichnis)"
+            >
+                <span aria-hidden="true">📑</span><span class="button-label">Suren</span>
+            </button>
+
+            <button
+                id="bookmarkButton"
+                class="toolbar-button"
+                type="button"
+                title="Lesezeichen für aktuelle Seite speichern"
+            >
+                <span aria-hidden="true">⭐</span><span class="button-label">Lesezeichen</span>
+            </button>
+
+            <button
+                id="mushafButton"
+                class="toolbar-button"
+                type="button"
+                title="Mushaf-Ausgabe auswählen"
+            >
+                <span aria-hidden="true">📚</span><span class="button-label">Mushaf</span>
+            </button>
+
+            <button
+                id="languageButton"
+                class="toolbar-button"
+                type="button"
+                title="Sprache auswählen"
+                aria-label="Sprache auswählen"
+            >
+                <span aria-hidden="true">文</span><span class="button-label">Sprache</span>
+            </button>
+
+            <div class="toolbar-divider"></div>
+
+            <button
+                id="themeToggle"
+                class="toolbar-button"
+                type="button"
+                title="Design wechseln (Klassisch / Dunkel / Sepia / Ozean)"
+            >
+                <span aria-hidden="true">🎨</span><span class="button-label">Design</span>
+            </button>
+
+            <button
+                id="singleDoubleToggle"
+                class="toolbar-button"
+                type="button"
+                title="Ansicht: Doppelseite / Einzelseite"
+            >
+                <span aria-hidden="true">📖</span><span class="button-label">Ansicht</span>
+            </button>
+
+            <div class="toolbar-divider"></div>
+
+            <button
+                id="zoomOut"
+                class="toolbar-button"
+                type="button"
+                title="Verkleinern (−)"
+            >
+                <span aria-hidden="true">−</span><span class="button-label">Zoom</span>
+            </button>
+
+            <span id="zoomValue">
+                100%
+            </span>
+
+            <button
+                id="zoomIn"
+                class="toolbar-button"
+                type="button"
+                title="Vergrößern (+)"
+            >
+                <span aria-hidden="true">+</span>
+            </button>
+
+            <button
+                id="fullscreenButton"
+                class="toolbar-button"
+                type="button"
+                title="Vollbild (F)"
+            >
+                <span aria-hidden="true">⛶</span><span class="button-label">Vollbild</span>
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <main class="reader">
+
+        <!--
+            Linke Seite des geöffneten Mushafs
+            ist die spätere Seite.
+        -->
+
+        <div
+            id="leftPageContainer"
+            class="page-container left-page"
+        >
+
+            <img
+                id="leftPage"
+                src="pages/002.svg"
+                alt="Mushaf Seite 2"
+            >
+
+            <div id="oldLeftPage" class="old-mushaf-page" aria-label="Alter Mushaf Seite 2"></div>
+
+        </div>
+
+
+        <!-- Buchfalz -->
+
+        <div class="book-spine"></div>
+
+
+        <!--
+            Rechte Seite des geöffneten Mushafs
+            ist die frühere Seite.
+        -->
+
+        <div
+            id="rightPageContainer"
+            class="page-container right-page"
+        >
+
+            <img
+                id="rightPage"
+                src="pages/001.svg"
+                alt="Mushaf Seite 1"
+            >
+
+            <div id="oldRightPage" class="old-mushaf-page" aria-label="Alter Mushaf Seite 1"></div>
+
+        </div>
+
+
+        <!-- Navigation -->
+
+        <button
+            id="previousButton"
+            class="page-button previous-button"
+            type="button"
+            aria-label="Vorherige Doppelseite"
+            title="Vorherige Doppelseite"
+        >
+            <span aria-hidden="true">→</span><span class="page-button-label">Zurück</span>
+        </button>
+
+
+        <button
+            id="nextButton"
+            class="page-button next-button"
+            type="button"
+            aria-label="Nächste Doppelseite"
+            title="Nächste Doppelseite"
+        >
+            <span aria-hidden="true">←</span><span class="page-button-label">Weiter</span>
+        </button>
+
+    </main>
+
+
+
+    <footer class="bottom-bar">
+
+        <div class="page-jump">
+
+            <label for="pageInput">
+                Zu Seite
+            </label>
+
+            <input
+                id="pageInput"
+                type="number"
+                min="1"
+                max="604"
+                value="1"
+            >
+
+            <button
+                id="openPageButton"
+                type="button"
+            >
+                Öffnen
+            </button>
+
+        </div>
+
+
+    <div class="keyboard-help">
+            ← / → Blättern | F Vollbild | T Design | S Ansicht | I Suren-Index
+        </div>
+
+    </footer>
+
+
+    <!-- Modal für Suren-Index & Lesezeichen -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Suren-Index</h3>
+                <button id="closeModal" class="close-button">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamischer Inhalt -->
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
