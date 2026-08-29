@@ -55,6 +55,7 @@ const rightPage =
 const oldLeftPage = document.getElementById("oldLeftPage");
 const oldRightPage = document.getElementById("oldRightPage");
 let oldMushafPages = null;
+let oldMushafGlyphMap = null;
 
 
 const pageInfo =
@@ -115,13 +116,24 @@ const openPageButton =
 /* SEITEN-URL                        */
 /* ================================= */
 
+function getStoredMushaf() {
+    const stored = localStorage.getItem("quran_mushaf");
+    return stored === "old" ? "old" : "modern";
+}
+
+function setStoredMushaf(mushaf) {
+    const normalized = mushaf === "old" ? "old" : "modern";
+    localStorage.setItem("quran_mushaf", normalized);
+    return normalized;
+}
+
 function getPagePath(pageNumber) {
 
     const padded =
         String(pageNumber)
             .padStart(3, "0");
 
-    const folder = localStorage.getItem("quran_mushaf") === "old"
+    const folder = getStoredMushaf() === "old"
         ? "pagesoldmushaf"
         : "pages";
 
@@ -136,38 +148,66 @@ function getPagePath(pageNumber) {
 
 function updatePages() {
 
-    const isOldMushaf = localStorage.getItem("quran_mushaf") === "old";
+    const isOldMushaf = getStoredMushaf() === "old";
 
     if (isOldMushaf) {
         leftPage.style.display = "none";
         rightPage.style.display = "none";
+        oldLeftPage.style.display = "flex";
+        oldRightPage.style.display = "flex";
         renderOldPage(oldLeftPage, leftPageNumber);
         renderOldPage(oldRightPage, rightPageNumber);
+        leftPage.removeAttribute("src");
+        rightPage.removeAttribute("src");
+        leftPage.alt = "";
+        rightPage.alt = "";
     } else {
         leftPage.style.display = "block";
         rightPage.style.display = "block";
         oldLeftPage.style.display = "none";
         oldRightPage.style.display = "none";
+        oldLeftPage.innerHTML = "";
+        oldRightPage.innerHTML = "";
+        leftPage.src =
+            getPagePath(
+                leftPageNumber
+            );
+
+
+        rightPage.src =
+            getPagePath(
+                rightPageNumber
+            );
+
+
+        leftPage.alt =
+            `Mushaf Seite ${leftPageNumber}`;
+
+
+        rightPage.alt =
+            `Mushaf Seite ${rightPageNumber}`;
     }
 
-    leftPage.src =
-        getPagePath(
-            leftPageNumber
-        );
+    if (!isOldMushaf) {
+        leftPage.src =
+            getPagePath(
+                leftPageNumber
+            );
 
 
-    rightPage.src =
-        getPagePath(
-            rightPageNumber
-        );
+        rightPage.src =
+            getPagePath(
+                rightPageNumber
+            );
 
 
-    leftPage.alt =
-        `Mushaf Seite ${leftPageNumber}`;
+        leftPage.alt =
+            `Mushaf Seite ${leftPageNumber}`;
 
 
-    rightPage.alt =
-        `Mushaf Seite ${rightPageNumber}`;
+        rightPage.alt =
+            `Mushaf Seite ${rightPageNumber}`;
+    }
 
 
     /*
@@ -199,11 +239,26 @@ async function loadOldMushafData() {
     return oldMushafPages;
 }
 
+async function loadOldMushafGlyphMap() {
+    if (oldMushafGlyphMap) return oldMushafGlyphMap;
+    const response = await fetch("pagesoldmushaf/qpc-v1-glyph-codes-wbw.json");
+    if (!response.ok) throw new Error("Old Mushaf Glyph-Daten konnten nicht geladen werden");
+    const glyphData = await response.json();
+    oldMushafGlyphMap = Object.fromEntries(
+        Object.values(glyphData).map((entry) => [String(entry.id), entry.text || ""])
+    );
+    return oldMushafGlyphMap;
+}
+
 function renderOldPage(container, pageNumber) {
     if (!container) return;
     container.style.display = "flex";
     container.innerHTML = "<div class='old-page-loading'>Lade Seite ...</div>";
-    loadOldMushafData().then((pages) => {
+
+    Promise.all([
+        loadOldMushafData(),
+        loadOldMushafGlyphMap()
+    ]).then(([pages, glyphMap]) => {
         const lines = pages[String(pageNumber)] || [];
         const fontName = `old-page-${pageNumber}`;
         if (!document.getElementById(fontName)) {
@@ -214,15 +269,16 @@ function renderOldPage(container, pageNumber) {
         }
         container.style.fontFamily = `'${fontName}'`;
         container.innerHTML = lines.map((line) => {
-            const count = Number.isInteger(line.first) && Number.isInteger(line.last)
-                ? line.last - line.first + 1
-                : 0;
-            const glyphs = count > 0
-                ? Array.from({ length: count }, (_, index) =>
-                    String.fromCharCode(64336 + line.first + index)
-                ).join("")
+            const from = Number(line.first);
+            const to = Number(line.last);
+            const hasRange = Number.isInteger(from) && Number.isInteger(to) && from > 0 && to >= from;
+            const glyphs = hasRange
+                ? Array.from({ length: to - from + 1 }, (_, index) => {
+                    const glyphId = from + index;
+                    return glyphMap[String(glyphId)] || "";
+                }).join("")
                 : "";
-            return `<div class="old-mushaf-line ${line.centered ? "centered" : ""} ${count ? "" : "empty"}">${glyphs}</div>`;
+            return `<div class="old-mushaf-line ${line.centered ? "centered" : ""} ${glyphs ? "" : "empty"}">${glyphs}</div>`;
         }).join("");
     }).catch(() => {
         container.innerHTML = "<div class='old-page-error'>Old Mushaf konnte nicht geladen werden.</div>";
@@ -558,13 +614,13 @@ const modalBody = document.getElementById("modalBody");
 const closeModalButton = document.getElementById("closeModal");
 
 const translations = {
-    de: { label: "Deutsch", pages: "Seiten", jump: "Zu Seite", open: "Öffnen", language: "Sprache", help: "← / → Blättern | F Vollbild | T Design | S Ansicht | I Suren", index: "Suren", bookmarks: "Lesezeichen", mushaf: "Mushaf", theme: "Design", view: "Ansicht", zoom: "Zoom", fullscreen: "Vollbild", prev: "Zurück", next: "Weiter", single: "Einzelseite", double: "Doppelseite", indexTitle: "Suren-Index", bookmarksTitle: "Meine Lesezeichen", mushafTitle: "Mushaf-Ausgabe", modern: "Moderner Mushaf", old: "Alter Mushaf", active: "Aktiv", select: "Auswählen", page: "Seite", noBookmarks: "Keine Lesezeichen vorhanden." },
-    ar: { label: "العربية", pages: "صفحات", jump: "اذهب إلى الصفحة", open: "فتح", language: "اللغة", help: "← / → للتنقل | F ملء الشاشة | T المظهر | S العرض | I السور", index: "السور", bookmarks: "الإشارات", mushaf: "المصحف", theme: "المظهر", view: "العرض", zoom: "تكبير", fullscreen: "ملء الشاشة", prev: "السابق", next: "التالي", single: "صفحة واحدة", double: "صفحتان", indexTitle: "فهرس السور", bookmarksTitle: "إشاراتي المرجعية", mushafTitle: "إصدار المصحف", modern: "المصحف الحديث", old: "المصحف القديم", active: "مفعل", select: "اختيار", page: "صفحة", noBookmarks: "لا توجد إشارات مرجعية." },
-    en: { label: "English", pages: "Pages", jump: "Go to page", open: "Open", language: "Language", help: "← / → Browse | F Fullscreen | T Theme | S View | I Surahs", index: "Surahs", bookmarks: "Bookmarks", mushaf: "Mushaf", theme: "Theme", view: "View", zoom: "Zoom", fullscreen: "Fullscreen", prev: "Prev", next: "Next", single: "Single page", double: "Double page", indexTitle: "Surah index", bookmarksTitle: "My bookmarks", mushafTitle: "Mushaf edition", modern: "Modern Mushaf", old: "Old Mushaf", active: "Active", select: "Select", page: "Page", noBookmarks: "No bookmarks saved." },
-    tr: { label: "Türkçe", pages: "Sayfalar", jump: "Sayfaya git", open: "Aç", language: "Dil", help: "← / → Gezin | F Tam ekran | T Tema | S Görünüm | I Sureler", index: "Sureler", bookmarks: "Yer imleri", mushaf: "Mushaf", theme: "Tema", view: "Görünüm", zoom: "Yakınlaştır", fullscreen: "Tam ekran", prev: "Geri", next: "İleri", single: "Tek sayfa", double: "Çift sayfa", indexTitle: "Sure dizini", bookmarksTitle: "Yer imlerim", mushafTitle: "Mushaf sürümü", modern: "Modern Mushaf", old: "Eski Mushaf", active: "Aktif", select: "Seç", page: "Sayfa", noBookmarks: "Kayıtlı yer imi yok." },
-    ur: { label: "اردو", pages: "صفحات", jump: "صفحہ پر جائیں", open: "کھولیں", language: "زبان", help: "← / → براؤز | F مکمل اسکرین | T تھیم | S منظر | I سورتیں", index: "سورتیں", bookmarks: "بک مارکس", mushaf: "مصحف", theme: "تھیم", view: "منظر", zoom: "زوم", fullscreen: "اسکرین", prev: "پیچھے", next: "آگے", single: "ایک صفحہ", double: "دو صفحات", indexTitle: "سورتوں کی فہرست", bookmarksTitle: "میرے بک مارکس", mushafTitle: "مصحف کا ایڈیشن", modern: "جدید مصحف", old: "پرانا مصحف", active: "فعال", select: "منتخب کریں", page: "صفحہ", noBookmarks: "کوئی بک مارک محفوظ نہیں۔" },
-    id: { label: "Bahasa Indonesia", pages: "Halaman", jump: "Ke halaman", open: "Buka", language: "Bahasa", help: "← / → Jelajah | F Layar penuh | T Tema | S Tampilan | I Surah", index: "Surah", bookmarks: "Bookmark", mushaf: "Mushaf", theme: "Tema", view: "Tampilan", zoom: "Zoom", fullscreen: "Layar penuh", prev: "Kembali", next: "Lanjut", single: "Satu halaman", double: "Dua halaman", indexTitle: "Indeks surah", bookmarksTitle: "Bookmark saya", mushafTitle: "Edisi mushaf", modern: "Mushaf modern", old: "Mushaf lama", active: "Aktif", select: "Pilih", page: "Halaman", noBookmarks: "Belum ada bookmark." },
-    fr: { label: "Français", pages: "Pages", jump: "Aller à la page", open: "Ouvrir", language: "Langue", help: "← / → Parcourir | F Plein écran | T Thème | S Vue | I Sourates", index: "Sourates", bookmarks: "Favoris", mushaf: "Mushaf", theme: "Thème", view: "Vue", zoom: "Zoom", fullscreen: "Plein écran", prev: "Retour", next: "Suivant", single: "Page seule", double: "Deux pages", indexTitle: "Index des sourates", bookmarksTitle: "Mes favoris", mushafTitle: "Édition du mushaf", modern: "Mushaf moderne", old: "Ancien mushaf", active: "Actif", select: "Sélectionner", page: "Page", noBookmarks: "Aucun favori enregistré." }
+    de: { label: "Deutsch", pages: "Seiten", jump: "Zu Seite", open: "Öffnen", language: "Sprache", help: "← / → Blättern | F Vollbild | T Design | S Ansicht | I Suren", index: "Suren", mushaf: "Mushaf", theme: "Design", view: "Ansicht", zoom: "Zoom", fullscreen: "Vollbild", prev: "Zurück", next: "Weiter", single: "Einzelseite", double: "Doppelseite", indexTitle: "Suren-Index", mushafTitle: "Mushaf-Ausgabe", modern: "Moderner Mushaf", old: "Alter Mushaf", active: "Aktiv", select: "Auswählen", page: "Seite" },
+    ar: { label: "العربية", pages: "صفحات", jump: "اذهب إلى الصفحة", open: "فتح", language: "اللغة", help: "← / → للتنقل | F ملء الشاشة | T المظهر | S العرض | I السور", index: "السور", mushaf: "المصحف", theme: "المظهر", view: "العرض", zoom: "تكبير", fullscreen: "ملء الشاشة", prev: "السابق", next: "التالي", single: "صفحة واحدة", double: "صفحتان", indexTitle: "فهرس السور", mushafTitle: "إصدار المصحف", modern: "المصحف الحديث", old: "المصحف القديم", active: "مفعل", select: "اختيار", page: "صفحة" },
+    en: { label: "English", pages: "Pages", jump: "Go to page", open: "Open", language: "Language", help: "← / → Browse | F Fullscreen | T Theme | S View | I Surahs", index: "Surahs", mushaf: "Mushaf", theme: "Theme", view: "View", zoom: "Zoom", fullscreen: "Fullscreen", prev: "Prev", next: "Next", single: "Single page", double: "Double page", indexTitle: "Surah index", mushafTitle: "Mushaf edition", modern: "Modern Mushaf", old: "Old Mushaf", active: "Active", select: "Select", page: "Page" },
+    tr: { label: "Türkçe", pages: "Sayfalar", jump: "Sayfaya git", open: "Aç", language: "Dil", help: "← / → Gezin | F Tam ekran | T Tema | S Görünüm | I Sureler", index: "Sureler", mushaf: "Mushaf", theme: "Tema", view: "Görünüm", zoom: "Yakınlaştır", fullscreen: "Tam ekran", prev: "Geri", next: "İleri", single: "Tek sayfa", double: "Çift sayfa", indexTitle: "Sure dizini", mushafTitle: "Mushaf sürümü", modern: "Modern Mushaf", old: "Eski Mushaf", active: "Aktif", select: "Seç", page: "Sayfa" },
+    ur: { label: "اردو", pages: "صفحات", jump: "صفحہ پر جائیں", open: "کھولیں", language: "زبان", help: "← / → براؤز | F مکمل اسکرین | T تھیم | S منظر | I سورتیں", index: "سورتیں", mushaf: "مصحف", theme: "تھیم", view: "منظر", zoom: "زوم", fullscreen: "اسکرین", prev: "پیچھے", next: "آگے", single: "ایک صفحہ", double: "دو صفحات", indexTitle: "سورتوں کی فہرست", mushafTitle: "مصحف کا ایڈیشن", modern: "جدید مصحف", old: "پرانا مصحف", active: "فعال", select: "منتخب کریں", page: "صفحہ" },
+    id: { label: "Bahasa Indonesia", pages: "Halaman", jump: "Ke halaman", open: "Buka", language: "Bahasa", help: "← / → Jelajah | F Layar penuh | T Tema | S Tampilan | I Surah", index: "Surah", mushaf: "Mushaf", theme: "Tema", view: "Tampilan", zoom: "Zoom", fullscreen: "Layar penuh", prev: "Kembali", next: "Lanjut", single: "Satu halaman", double: "Dua halaman", indexTitle: "Indeks surah", mushafTitle: "Edisi mushaf", modern: "Mushaf modern", old: "Mushaf lama", active: "Aktif", select: "Pilih", page: "Halaman" },
+    fr: { label: "Français", pages: "Pages", jump: "Aller à la page", open: "Ouvrir", language: "Langue", help: "← / → Parcourir | F Plein écran | T Thème | S Vue | I Sourates", index: "Sourates", mushaf: "Mushaf", theme: "Thème", view: "Vue", zoom: "Zoom", fullscreen: "Plein écran", prev: "Retour", next: "Suivant", single: "Page seule", double: "Deux pages", indexTitle: "Index des sourates", mushafTitle: "Édition du mushaf", modern: "Mushaf moderne", old: "Ancien mushaf", active: "Actif", select: "Sélectionner", page: "Page" }
 };
 
 let currentLanguage = localStorage.getItem("quran_language") || "de";
@@ -583,8 +639,6 @@ function applyLanguage(language) {
     
     surahButton.title = t.index;
     surahButton.querySelector(".button-label").textContent = t.index;
-    bookmarkButton.title = t.bookmarks;
-    bookmarkButton.querySelector(".button-label").textContent = t.bookmarks;
     mushafButton.title = t.mushaf;
     mushafButton.querySelector(".button-label").textContent = t.mushaf;
     languageButton.title = t.language;
@@ -597,8 +651,6 @@ function applyLanguage(language) {
     zoomOutButton.querySelector(".button-label").textContent = t.zoom;
     fullscreenButton.title = t.fullscreen;
     fullscreenButton.querySelector(".button-label").textContent = t.fullscreen;
-    previousButton.querySelector(".page-button-label").textContent = t.prev;
-    nextButton.querySelector(".page-button-label").textContent = t.next;
     previousButton.title = t.prev;
     nextButton.title = t.next;
     previousButton.setAttribute("aria-label", t.prev);
@@ -651,25 +703,52 @@ if (infoModal) {
 }
 
 const surahButton = document.getElementById("surahButton");
-const bookmarkButton = document.getElementById("bookmarkButton");
 const mushafButton = document.getElementById("mushafButton");
+
+if (!localStorage.getItem("quran_mushaf")) {
+    localStorage.setItem("quran_mushaf", "modern");
+}
 
 const surahs = [
     [1, "Al-Fatiha", 1], [2, "Al-Baqarah", 2], [3, "Ali 'Imran", 50],
     [4, "An-Nisa", 77], [5, "Al-Ma'idah", 106], [6, "Al-An'am", 128],
     [7, "Al-A'raf", 151], [8, "Al-Anfal", 177], [9, "At-Tawbah", 187],
     [10, "Yunus", 208], [11, "Hud", 221], [12, "Yusuf", 235],
-    [18, "Al-Kahf", 293], [36, "Ya-Sin", 440], [55, "Ar-Rahman", 531],
-    [67, "Al-Mulk", 562], [112, "Al-Ikhlas", 604], [113, "Al-Falaq", 604], [114, "An-Nas", 604]
+    [13, "Ar-Ra'd", 248], [14, "Ibrahim", 255], [15, "Al-Hijr", 262],
+    [16, "An-Nahl", 272], [17, "Al-Isra", 281], [18, "Al-Kahf", 293],
+    [19, "Maryam", 306], [20, "Ta-Ha", 312], [21, "Al-Anbiya", 321],
+    [22, "Al-Hajj", 332], [23, "Al-Mu'minun", 342], [24, "An-Nur", 350],
+    [25, "Al-Furqan", 359], [26, "Ash-Shu'ara", 367], [27, "An-Naml", 376],
+    [28, "Al-Qasas", 384], [29, "Al-'Ankabut", 396], [30, "Ar-Rum", 404],
+    [31, "Luqman", 411], [32, "As-Sajdah", 415], [33, "Al-Ahzab", 418],
+    [34, "Saba", 428], [35, "Fatir", 435], [36, "Ya-Sin", 440],
+    [37, "As-Saffat", 446], [38, "Sad", 453], [39, "Az-Zumar", 460],
+    [40, "Ghafir", 467], [41, "Fussilat", 477], [42, "Ash-Shura", 483],
+    [43, "Az-Zukhruf", 489], [44, "Ad-Dukhan", 496], [45, "Al-Jathiyah", 499],
+    [46, "Al-Ahqaf", 506], [47, "Muhammad", 510], [48, "Al-Fath", 514],
+    [49, "Al-Hujurat", 518], [50, "Qaf", 520], [51, "Adh-Dhariyat", 523],
+    [52, "At-Tur", 526], [53, "An-Najm", 528], [54, "Al-Qamar", 531],
+    [55, "Ar-Rahman", 534], [56, "Al-Waqi'ah", 537], [57, "Al-Hadid", 542],
+    [58, "Al-Mujadilah", 545], [59, "Al-Hashr", 548], [60, "Al-Mumtahanah", 551],
+    [61, "As-Saff", 553], [62, "Al-Jumu'ah", 554], [63, "Al-Munafiqun", 556],
+    [64, "At-Taghabun", 558], [65, "At-Talaq", 560], [66, "At-Tahrim", 562],
+    [67, "Al-Mulk", 564], [68, "Al-Qalam", 566], [69, "Al-Haqqah", 568],
+    [70, "Al-Ma'arij", 570], [71, "Nuh", 572], [72, "Al-Jinn", 574],
+    [73, "Al-Muzzammil", 575], [74, "Al-Muddaththir", 577], [75, "Al-Qiyamah", 579],
+    [76, "Al-Insan", 581], [77, "Al-Mursalat", 583], [78, "An-Naba", 585],
+    [79, "An-Nazi'at", 586], [80, "'Abasa", 587], [81, "At-Takwir", 587],
+    [82, "Al-Infitar", 588], [83, "Al-Mutaffifin", 589], [84, "Al-Inshiqaq", 590],
+    [85, "Al-Buruj", 591], [86, "At-Tariq", 592], [87, "Al-A'la", 593],
+    [88, "Al-Ghashiyah", 594], [89, "Al-Fajr", 595], [90, "Al-Balad", 596],
+    [91, "Ash-Shams", 596], [92, "Al-Lail", 597], [93, "Ad-Duhaa", 597],
+    [94, "Ash-Sharh", 598], [95, "At-Tin", 598], [96, "Al-'Alaq", 599],
+    [97, "Al-Qadr", 599], [98, "Al-Bayyinah", 600], [99, "Az-Zalzalah", 600],
+    [100, "Al-'Adiyat", 600], [101, "Al-Qari'ah", 601], [102, "At-Takathur", 601],
+    [103, "Al-'Asr", 601], [104, "Al-Humazah", 602], [105, "Al-Fil", 602],
+    [106, "Quraysh", 602], [107, "Al-Ma'un", 603], [108, "Al-Kawthar", 603],
+    [109, "Al-Kafirun", 603], [110, "An-Nasr", 603], [111, "Al-Masad", 603],
+    [112, "Al-Ikhlas", 604], [113, "Al-Falaq", 604], [114, "An-Nas", 604]
 ];
-
-function getBookmarks() {
-    try {
-        return JSON.parse(localStorage.getItem("quran_bookmarks") || "[]");
-    } catch {
-        return [];
-    }
-}
 
 if (surahButton) {
     surahButton.addEventListener("click", () => {
@@ -681,26 +760,10 @@ if (surahButton) {
     });
 }
 
-if (bookmarkButton) {
-    bookmarkButton.addEventListener("click", () => {
-        const t = translations[currentLanguage];
-        const bookmarks = getBookmarks();
-        if (!bookmarks.includes(rightPageNumber)) {
-            bookmarks.push(rightPageNumber);
-            bookmarks.sort((a, b) => a - b);
-            localStorage.setItem("quran_bookmarks", JSON.stringify(bookmarks));
-        }
-        const items = bookmarks.length
-            ? bookmarks.map((page) => `<button class="modal-item" type="button" data-page="${page}"><span>${t.page} ${page}</span><span>${t.open}</span></button>`).join("")
-            : `<p>${t.noBookmarks}</p>`;
-        openInfoModal(t.bookmarksTitle, items);
-    });
-}
-
 if (mushafButton) {
     mushafButton.addEventListener("click", () => {
         const t = translations[currentLanguage];
-        const selected = localStorage.getItem("quran_mushaf") || "modern";
+        const selected = getStoredMushaf();
         const items = `
             <button class="modal-item" type="button" data-mushaf="modern">
                 <span>${t.modern}</span><span>${selected === "modern" ? t.active : t.select}</span>
@@ -721,7 +784,7 @@ if (modalBody) {
             closeInfoModal();
         }
         if (mushafItem) {
-            localStorage.setItem("quran_mushaf", mushafItem.dataset.mushaf);
+            setStoredMushaf(mushafItem.dataset.mushaf);
             updatePages();
             closeInfoModal();
         }
