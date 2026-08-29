@@ -608,19 +608,20 @@ async function toggleFullscreen() {
 const themeToggleBtn = document.getElementById("themeToggle");
 const singleDoubleToggleBtn = document.getElementById("singleDoubleToggle");
 const languageButton = document.getElementById("languageButton");
+const searchButton = document.getElementById("searchButton");
 const infoModal = document.getElementById("infoModal");
 const modalTitle = document.getElementById("modalTitle");
 const modalBody = document.getElementById("modalBody");
 const closeModalButton = document.getElementById("closeModal");
 
 const translations = {
-    de: { label: "Deutsch", pages: "Seiten", jump: "Zu Seite", open: "Öffnen", language: "Sprache", help: "← / → Blättern | F Vollbild | T Design | S Ansicht | I Suren", index: "Suren", mushaf: "Mushaf", theme: "Design", view: "Ansicht", zoom: "Zoom", fullscreen: "Vollbild", prev: "Zurück", next: "Weiter", single: "Einzelseite", double: "Doppelseite", indexTitle: "Suren-Index", mushafTitle: "Mushaf-Ausgabe", modern: "Moderner Mushaf", old: "Alter Mushaf", active: "Aktiv", select: "Auswählen", page: "Seite" },
-    ar: { label: "العربية", pages: "صفحات", jump: "اذهب إلى الصفحة", open: "فتح", language: "اللغة", help: "← / → للتنقل | F ملء الشاشة | T المظهر | S العرض | I السور", index: "السور", mushaf: "المصحف", theme: "المظهر", view: "العرض", zoom: "تكبير", fullscreen: "ملء الشاشة", prev: "السابق", next: "التالي", single: "صفحة واحدة", double: "صفحتان", indexTitle: "فهرس السور", mushafTitle: "إصدار المصحف", modern: "المصحف الحديث", old: "المصحف القديم", active: "مفعل", select: "اختيار", page: "صفحة" },
-    en: { label: "English", pages: "Pages", jump: "Go to page", open: "Open", language: "Language", help: "← / → Browse | F Fullscreen | T Theme | S View | I Surahs", index: "Surahs", mushaf: "Mushaf", theme: "Theme", view: "View", zoom: "Zoom", fullscreen: "Fullscreen", prev: "Prev", next: "Next", single: "Single page", double: "Double page", indexTitle: "Surah index", mushafTitle: "Mushaf edition", modern: "Modern Mushaf", old: "Old Mushaf", active: "Active", select: "Select", page: "Page" },
-    tr: { label: "Türkçe", pages: "Sayfalar", jump: "Sayfaya git", open: "Aç", language: "Dil", help: "← / → Gezin | F Tam ekran | T Tema | S Görünüm | I Sureler", index: "Sureler", mushaf: "Mushaf", theme: "Tema", view: "Görünüm", zoom: "Yakınlaştır", fullscreen: "Tam ekran", prev: "Geri", next: "İleri", single: "Tek sayfa", double: "Çift sayfa", indexTitle: "Sure dizini", mushafTitle: "Mushaf sürümü", modern: "Modern Mushaf", old: "Eski Mushaf", active: "Aktif", select: "Seç", page: "Sayfa" },
-    ur: { label: "اردو", pages: "صفحات", jump: "صفحہ پر جائیں", open: "کھولیں", language: "زبان", help: "← / → براؤز | F مکمل اسکرین | T تھیم | S منظر | I سورتیں", index: "سورتیں", mushaf: "مصحف", theme: "تھیم", view: "منظر", zoom: "زوم", fullscreen: "اسکرین", prev: "پیچھے", next: "آگے", single: "ایک صفحہ", double: "دو صفحات", indexTitle: "سورتوں کی فہرست", mushafTitle: "مصحف کا ایڈیشن", modern: "جدید مصحف", old: "پرانا مصحف", active: "فعال", select: "منتخب کریں", page: "صفحہ" },
-    id: { label: "Bahasa Indonesia", pages: "Halaman", jump: "Ke halaman", open: "Buka", language: "Bahasa", help: "← / → Jelajah | F Layar penuh | T Tema | S Tampilan | I Surah", index: "Surah", mushaf: "Mushaf", theme: "Tema", view: "Tampilan", zoom: "Zoom", fullscreen: "Layar penuh", prev: "Kembali", next: "Lanjut", single: "Satu halaman", double: "Dua halaman", indexTitle: "Indeks surah", mushafTitle: "Edisi mushaf", modern: "Mushaf modern", old: "Mushaf lama", active: "Aktif", select: "Pilih", page: "Halaman" },
-    fr: { label: "Français", pages: "Pages", jump: "Aller à la page", open: "Ouvrir", language: "Langue", help: "← / → Parcourir | F Plein écran | T Thème | S Vue | I Sourates", index: "Sourates", mushaf: "Mushaf", theme: "Thème", view: "Vue", zoom: "Zoom", fullscreen: "Plein écran", prev: "Retour", next: "Suivant", single: "Page seule", double: "Deux pages", indexTitle: "Index des sourates", mushafTitle: "Édition du mushaf", modern: "Mushaf moderne", old: "Ancien mushaf", active: "Actif", select: "Sélectionner", page: "Page" }
+    de: { label: "Deutsch", pages: "Seiten", jump: "Zu Seite", open: "Öffnen", language: "Sprache", help: "← / → Blättern | F Vollbild | T Design | S Ansicht | I Suren | / Suche", index: "Suren", mushaf: "Mushaf", theme: "Design", view: "Ansicht", zoom: "Zoom", fullscreen: "Vollbild", prev: "Zurück", next: "Weiter", single: "Einzelseite", double: "Doppelseite", indexTitle: "Suren-Index", mushafTitle: "Mushaf-Ausgabe", modern: "Moderner Mushaf", old: "Alter Mushaf", active: "Aktiv", select: "Auswählen", page: "Seite", search: "Suche", searchTitle: "Suche", noResults: "Keine Treffer gefunden." },
+    ar: { label: "العربية", pages: "صفحات", jump: "اذهب إلى الصفحة", open: "فتح", language: "اللغة", help: "← / → للتنقل | F ملء الشاشة | T المظهر | S العرض | I السور | / بحث", index: "السور", mushaf: "المصحف", theme: "المظهر", view: "العرض", zoom: "تكبير", fullscreen: "ملء الشاشة", prev: "السابق", next: "التالي", single: "صفحة واحدة", double: "صفحتان", indexTitle: "فهرس السور", mushafTitle: "إصدار المصحف", modern: "المصحف الحديث", old: "المصحف القديم", active: "مفعل", select: "اختيار", page: "صفحة", search: "بحث", searchTitle: "بحث", noResults: "لا توجد نتائج." },
+    en: { label: "English", pages: "Pages", jump: "Go to page", open: "Open", language: "Language", help: "← / → Browse | F Fullscreen | T Theme | S View | I Surahs | / Search", index: "Surahs", mushaf: "Mushaf", theme: "Theme", view: "View", zoom: "Zoom", fullscreen: "Fullscreen", prev: "Prev", next: "Next", single: "Single page", double: "Double page", indexTitle: "Surah index", mushafTitle: "Mushaf edition", modern: "Modern Mushaf", old: "Old Mushaf", active: "Active", select: "Select", page: "Page", search: "Search", searchTitle: "Search", noResults: "No results found." },
+    tr: { label: "Türkçe", pages: "Sayfalar", jump: "Sayfaya git", open: "Aç", language: "Dil", help: "← / → Gezin | F Tam ekran | T Tema | S Görünüm | I Sureler | / Ara", index: "Sureler", mushaf: "Mushaf", theme: "Tema", view: "Görünüm", zoom: "Yakınlaştır", fullscreen: "Tam ekran", prev: "Geri", next: "İleri", single: "Tek sayfa", double: "Çift sayfa", indexTitle: "Sure dizini", mushafTitle: "Mushaf sürümü", modern: "Modern Mushaf", old: "Eski Mushaf", active: "Aktif", select: "Seç", page: "Sayfa", search: "Ara", searchTitle: "Ara", noResults: "Sonuç bulunamadı." },
+    ur: { label: "اردو", pages: "صفحات", jump: "صفحہ پر جائیں", open: "کھولیں", language: "زبان", help: "← / → براؤز | F مکمل اسکرین | T تھیم | S منظر | I سورتیں | / تلاش", index: "سورتیں", mushaf: "مصحف", theme: "تھیم", view: "منظر", zoom: "زوم", fullscreen: "اسکرین", prev: "پیچھے", next: "آگے", single: "ایک صفحہ", double: "دو صفحات", indexTitle: "سورتوں کی فہرست", mushafTitle: "مصحف کا ایڈیشن", modern: "جدید مصحف", old: "پرانا مصحف", active: "فعال", select: "منتخب کریں", page: "صفحہ", search: "تلاش", searchTitle: "تلاش", noResults: "کوئی نتیجہ نہیں ملا۔" },
+    id: { label: "Bahasa Indonesia", pages: "Halaman", jump: "Ke halaman", open: "Buka", language: "Bahasa", help: "← / → Jelajah | F Layar penuh | T Tema | S Tampilan | I Surah | / Cari", index: "Surah", mushaf: "Mushaf", theme: "Tema", view: "Tampilan", zoom: "Zoom", fullscreen: "Layar penuh", prev: "Kembali", next: "Lanjut", single: "Satu halaman", double: "Dua halaman", indexTitle: "Indeks surah", mushafTitle: "Edisi mushaf", modern: "Mushaf modern", old: "Mushaf lama", active: "Aktif", select: "Pilih", page: "Halaman", search: "Cari", searchTitle: "Cari", noResults: "Tidak ada hasil." },
+    fr: { label: "Français", pages: "Pages", jump: "Aller à la page", open: "Ouvrir", language: "Langue", help: "← / → Parcourir | F Plein écran | T Thème | S Vue | I Sourates | / Rechercher", index: "Sourates", mushaf: "Mushaf", theme: "Thème", view: "Vue", zoom: "Zoom", fullscreen: "Plein écran", prev: "Retour", next: "Suivant", single: "Page seule", double: "Deux pages", indexTitle: "Index des sourates", mushafTitle: "Édition du mushaf", modern: "Mushaf moderne", old: "Ancien mushaf", active: "Actif", select: "Sélectionner", page: "Page", search: "Rechercher", searchTitle: "Rechercher", noResults: "Aucun résultat." }
 };
 
 let currentLanguage = localStorage.getItem("quran_language") || "de";
@@ -673,6 +674,42 @@ function updateViewButtonText() {
     singleDoubleToggleBtn.querySelector(".button-label").textContent = label;
 }
 
+function openSearchModal() {
+    const t = translations[currentLanguage];
+    openInfoModal(t.searchTitle, `
+        <div class="search-box">
+            <input id="searchInput" type="text" placeholder="${t.search}..." aria-label="${t.search}">
+        </div>
+        <div id="searchResults" class="search-results"></div>
+    `);
+
+    const searchInput = document.getElementById("searchInput");
+    const searchResults = document.getElementById("searchResults");
+    const updateResults = (value) => {
+        const query = value.trim().toLowerCase();
+        const matches = surahs.filter(([number, name]) => {
+            const nameMatch = name.toLowerCase().includes(query);
+            const numberMatch = String(number).includes(query);
+            return query ? (nameMatch || numberMatch) : true;
+        }).slice(0, 25);
+
+        if (!matches.length) {
+            searchResults.innerHTML = `<p>${t.noResults}</p>`;
+            return;
+        }
+
+        searchResults.innerHTML = matches.map(([number, name, page]) => `
+            <button class="modal-item" type="button" data-page="${page}">
+                <span>${number}. ${name}</span>
+                <span>${t.page} ${page}</span>
+            </button>
+        `).join("");
+    };
+
+    searchInput.addEventListener("input", (event) => updateResults(event.target.value));
+    updateResults("");
+}
+
 function closeInfoModal() {
     infoModal.classList.remove("active");
 }
@@ -686,12 +723,36 @@ if (languageButton) {
     });
 }
 
+if (searchButton) {
+    searchButton.addEventListener("click", openSearchModal);
+}
+
 if (modalBody) {
     modalBody.addEventListener("click", (event) => {
-        const item = event.target.closest("[data-language]");
-        if (!item) return;
-        applyLanguage(item.dataset.language);
-        closeInfoModal();
+        const languageItem = event.target.closest("[data-language]");
+        const pageItem = event.target.closest("[data-page]");
+        const mushafItem = event.target.closest("[data-mushaf]");
+
+        if (languageItem) {
+            applyLanguage(languageItem.dataset.language);
+            closeInfoModal();
+            return;
+        }
+
+        if (pageItem) {
+            const targetPage = Number(pageItem.dataset.page);
+            if (!Number.isNaN(targetPage)) {
+                goToPage(targetPage);
+                closeInfoModal();
+            }
+            return;
+        }
+
+        if (mushafItem) {
+            setStoredMushaf(mushafItem.dataset.mushaf);
+            updatePages();
+            closeInfoModal();
+        }
     });
 }
 
@@ -984,6 +1045,10 @@ document.addEventListener(
 
         if (event.key.toLowerCase() === "i" && surahButton) {
             surahButton.click();
+        }
+
+        if (event.key === "/" && searchButton) {
+            searchButton.click();
         }
 
         if (event.key === "Escape" && infoModal) {

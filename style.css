@@ -240,6 +240,14 @@ body.theme-ocean {
     transform: translateY(-1px);
 }
 
+.toolbar-button:focus-visible,
+.page-button:focus-visible,
+.modal-item:focus-visible,
+.page-jump button:focus-visible,
+.page-jump input:focus-visible {
+    outline: 2px solid rgba(84, 123, 255, 0.8);
+    outline-offset: 2px;
+}
 
 #zoomValue {
 
@@ -668,6 +676,30 @@ body.theme-ocean {
     gap: 8px;
 }
 
+.search-box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.search-box input {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--btn-border, #d1ccc2);
+    border-radius: 8px;
+    background: var(--btn-bg, #ffffff);
+    color: var(--text-color, #292722);
+    font-size: 14px;
+}
+
+.search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .modal-item {
     padding: 12px 14px;
     border-radius: 8px;
@@ -887,23 +919,27 @@ body.theme-ocean {
     inset: 0;
     display: none;
     flex-direction: column;
-    justify-content: space-around;
-    padding: 14% 9% 7%;
+    justify-content: space-between;
+    gap: 0.7vh;
+    padding: 9% 10.5% 8%;
     direction: rtl;
     background: var(--page-bg, #fffdf8);
-    color: #111;
+    color: var(--text-color, #292722);
     overflow: hidden;
+    border-radius: 0;
 }
 
 .old-mushaf-line {
-    min-height: 4.6%;
+    min-height: 4.5%;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     white-space: nowrap;
     direction: rtl;
-    font-size: clamp(13px, 2.1vh, 26px);
-    line-height: 1;
+    font-size: clamp(12px, 2vh, 24px);
+    line-height: 1.2;
+    color: var(--text-color, #292722);
+    letter-spacing: 0.02em;
 }
 
 .old-mushaf-line.centered {
@@ -920,4 +956,5 @@ body.theme-ocean {
     font-family: system-ui, sans-serif;
     font-size: 13px;
     direction: ltr;
+    color: var(--text-color, #292722);
 }
