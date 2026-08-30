@@ -951,6 +951,11 @@ body.theme-ocean {
     visibility: hidden;
 }
 
+.old-mushaf-line.surah-name,
+.old-mushaf-line.basmallah {
+    /* Suren-Namen und Basmallah korrekt anzeigen und nicht als leer einteilen */
+}
+
 .old-page-loading,
 .old-page-error {
     margin: auto;

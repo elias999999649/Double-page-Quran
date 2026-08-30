@@ -229,6 +229,9 @@ function updatePages() {
 
     updateNavigation();
 
+    // Automatisches Preloading der Nachbarseiten im Hintergrund
+    preloadAdjacentPages();
+
 }
 
 async function loadOldMushafData() {
@@ -291,7 +294,14 @@ function renderOldPageContent(container, pageNumber, pages, glyphMap) {
                 return glyphMap[String(glyphId)] || "";
             }).join("")
             : "";
-        return `<div class="old-mushaf-line ${line.centered ? "centered" : ""} ${glyphs ? "" : "empty"}">${glyphs}</div>`;
+        
+        let extraClass = "";
+        if (line.type === "surah_name") extraClass = "surah-name";
+        else if (line.type === "basmallah") extraClass = "basmallah";
+
+        // Nur normale Ayah-Zeilen ohne Glyphen als "empty" markieren
+        const isEmpty = !glyphs && line.type !== "surah_name" && line.type !== "basmallah";
+        return `<div class="old-mushaf-line ${line.centered ? "centered" : ""} ${extraClass} ${isEmpty ? "empty" : ""}">${glyphs}</div>`;
     }).join("");
 }
 
@@ -549,24 +559,28 @@ function updateZoom() {
         der Buchansicht.
     */
 
-    leftPage.style.transform =
-        `scale(${zoomLevel})`;
+    const isOld = getStoredMushaf() === "old";
+    const targetLeft = isOld ? oldLeftPage : leftPage;
+    const targetRight = isOld ? oldRightPage : rightPage;
 
-    rightPage.style.transform =
-        `scale(${zoomLevel})`;
+    if (targetLeft) {
+        targetLeft.style.transform = `scale(${zoomLevel})`;
+        targetLeft.style.transformOrigin = "center center";
+    }
+    if (targetRight) {
+        targetRight.style.transform = `scale(${zoomLevel})`;
+        targetRight.style.transformOrigin = "center center";
+    }
 
-
-    /*
-        transform-origin sorgt dafür,
-        dass die Seite nicht aus ihrer
-        Position verschwindet.
-    */
-
-    leftPage.style.transformOrigin =
-        "center center";
-
-    rightPage.style.transformOrigin =
-        "center center";
+    // Falls die jeweils andere Ansicht existiert, setzen wir deren Scale sicherheitshalber zurück,
+    // damit sie keine unerwünschten Effekte hat (wobei sie ohnehin ausgeblendet sein sollte).
+    if (isOld) {
+        if (leftPage) leftPage.style.transform = "none";
+        if (rightPage) rightPage.style.transform = "none";
+    } else {
+        if (oldLeftPage) oldLeftPage.style.transform = "none";
+        if (oldRightPage) oldRightPage.style.transform = "none";
+    }
 
 
     zoomValue.textContent =
