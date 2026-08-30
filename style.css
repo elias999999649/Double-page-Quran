@@ -919,9 +919,9 @@ body.theme-ocean {
     inset: 0;
     display: none;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 0.7vh;
-    padding: 9% 10.5% 8%;
+    justify-content: center;
+    gap: 0.2vh;
+    padding: 4% 3.5%;
     direction: rtl;
     background: var(--page-bg, #fffdf8);
     color: var(--text-color, #292722);
@@ -930,16 +930,17 @@ body.theme-ocean {
 }
 
 .old-mushaf-line {
-    min-height: 4.5%;
+    flex: 1;
+    min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     white-space: nowrap;
     direction: rtl;
-    font-size: clamp(12px, 2vh, 24px);
-    line-height: 1.2;
+    font-size: clamp(14px, 3.4vh, 36px);
+    line-height: 1;
     color: var(--text-color, #292722);
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
 }
 
 .old-mushaf-line.centered {
