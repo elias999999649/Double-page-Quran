@@ -253,36 +253,81 @@ async function loadOldMushafGlyphMap() {
 function renderOldPage(container, pageNumber) {
     if (!container) return;
     container.style.display = "flex";
-    container.innerHTML = "<div class='old-page-loading'>Lade Seite ...</div>";
+    
+    // Wenn Daten schon da sind, direkt rendern ohne "Lade Seite ..." flackern
+    if (oldMushafPages && oldMushafGlyphMap) {
+        renderOldPageContent(container, pageNumber, oldMushafPages, oldMushafGlyphMap);
+    } else {
+        container.innerHTML = "<div class='old-page-loading'>Lade Seite ...</div>";
+    }
 
     Promise.all([
         loadOldMushafData(),
         loadOldMushafGlyphMap()
     ]).then(([pages, glyphMap]) => {
-        const lines = pages[String(pageNumber)] || [];
-        const fontName = `old-page-${pageNumber}`;
-        if (!document.getElementById(fontName)) {
-            const fontStyle = document.createElement("style");
-            fontStyle.id = fontName;
-            fontStyle.textContent = `@font-face { font-family: '${fontName}'; src: url('pagesoldmushaf/p${pageNumber}.ttf') format('truetype'); }`;
-            document.head.appendChild(fontStyle);
-        }
-        container.style.fontFamily = `'${fontName}'`;
-        container.innerHTML = lines.map((line) => {
-            const from = Number(line.first);
-            const to = Number(line.last);
-            const hasRange = Number.isInteger(from) && Number.isInteger(to) && from > 0 && to >= from;
-            const glyphs = hasRange
-                ? Array.from({ length: to - from + 1 }, (_, index) => {
-                    const glyphId = from + index;
-                    return glyphMap[String(glyphId)] || "";
-                }).join("")
-                : "";
-            return `<div class="old-mushaf-line ${line.centered ? "centered" : ""} ${glyphs ? "" : "empty"}">${glyphs}</div>`;
-        }).join("");
+        renderOldPageContent(container, pageNumber, pages, glyphMap);
     }).catch(() => {
         container.innerHTML = "<div class='old-page-error'>Old Mushaf konnte nicht geladen werden.</div>";
     });
+}
+
+function renderOldPageContent(container, pageNumber, pages, glyphMap) {
+    const lines = pages[String(pageNumber)] || [];
+    const fontName = `old-page-${pageNumber}`;
+    if (!document.getElementById(fontName)) {
+        const fontStyle = document.createElement("style");
+        fontStyle.id = fontName;
+        fontStyle.textContent = `@font-face { font-family: '${fontName}'; src: url('pagesoldmushaf/p${pageNumber}.ttf') format('truetype'); }`;
+        document.head.appendChild(fontStyle);
+    }
+    container.style.fontFamily = `'${fontName}'`;
+    container.innerHTML = lines.map((line) => {
+        const from = Number(line.first);
+        const to = Number(line.last);
+        const hasRange = Number.isInteger(from) && Number.isInteger(to) && from > 0 && to >= from;
+        const glyphs = hasRange
+            ? Array.from({ length: to - from + 1 }, (_, index) => {
+                const glyphId = from + index;
+                return glyphMap[String(glyphId)] || "";
+            }).join("")
+            : "";
+        return `<div class="old-mushaf-line ${line.centered ? "centered" : ""} ${glyphs ? "" : "empty"}">${glyphs}</div>`;
+    }).join("");
+}
+
+/* ================================= */
+/* PRELOADING FÜR BLITZSCHNELLES BLÄTTERN */
+/* ================================= */
+
+function preloadAdjacentPages() {
+    const isOldMushaf = getStoredMushaf() === "old";
+    const nextLeft = leftPageNumber + 2;
+    const nextRight = rightPageNumber + 2;
+    const prevLeft = leftPageNumber - 2;
+    const prevRight = rightPageNumber - 2;
+
+    const pagesToPreload = [nextLeft, nextRight, prevLeft, prevRight].filter(p => p >= 1 && p <= TOTAL_PAGES);
+
+    if (isOldMushaf) {
+        // Vorladen der JSONs und TTF Fonts für den alten Mushaf
+        Promise.all([loadOldMushafData(), loadOldMushafGlyphMap()]).then(([pages, glyphMap]) => {
+            pagesToPreload.forEach(pageNumber => {
+                const fontName = `old-page-${pageNumber}`;
+                if (!document.getElementById(fontName)) {
+                    const fontStyle = document.createElement("style");
+                    fontStyle.id = fontName;
+                    fontStyle.textContent = `@font-face { font-family: '${fontName}'; src: url('pagesoldmushaf/p${pageNumber}.ttf') format('truetype'); }`;
+                    document.head.appendChild(fontStyle);
+                }
+            });
+        }).catch(() => {});
+    } else {
+        // Vorladen der SVG Bilder für den modernen Mushaf
+        pagesToPreload.forEach(pageNumber => {
+            const img = new Image();
+            img.src = getPagePath(pageNumber);
+        });
+    }
 }
 
 
