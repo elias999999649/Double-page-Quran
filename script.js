@@ -673,42 +673,7 @@ function updateViewButtonText() {
     singleDoubleToggleBtn.querySelector(".button-label").textContent = label;
 }
 
-function openSearchModal() {
-    const t = translations[currentLanguage];
-    openInfoModal(t.searchTitle, `
-        <div class="search-box">
-            <input id="searchInput" type="text" placeholder="${t.search}..." aria-label="${t.search}">
-        </div>
-        <div id="searchResults" class="search-results"></div>
-    `);
-
-    const searchInput = document.getElementById("searchInput");
-    const searchResults = document.getElementById("searchResults");
-    const updateResults = (value) => {
-        const query = value.trim().toLowerCase();
-        const matches = surahs.filter(([number, name]) => {
-            const nameMatch = name.toLowerCase().includes(query);
-            const numberMatch = String(number).includes(query);
-            return query ? (nameMatch || numberMatch) : true;
-        }).slice(0, 25);
-
-        if (!matches.length) {
-            searchResults.innerHTML = `<p>${t.noResults}</p>`;
-            return;
-        }
-
-        searchResults.innerHTML = matches.map(([number, name, page]) => `
-            <button class="modal-item" type="button" data-page="${page}">
-                <span>${number}. ${name}</span>
-                <span>${t.page} ${page}</span>
-            </button>
-        `).join("");
-    };
-
-    searchInput.addEventListener("input", (event) => updateResults(event.target.value));
-    updateResults("");
-}
-
+// ... existing code ...
 function closeInfoModal() {
     infoModal.classList.remove("active");
 }
@@ -722,11 +687,8 @@ if (languageButton) {
     });
 }
 
-if (searchButton) {
-    searchButton.addEventListener("click", openSearchModal);
-}
-
 if (modalBody) {
+// ... existing code ...
     modalBody.addEventListener("click", (event) => {
         const languageItem = event.target.closest("[data-language]");
         const pageItem = event.target.closest("[data-page]");
@@ -1042,12 +1004,8 @@ document.addEventListener(
             singleDoubleToggleBtn.click();
         }
 
-        if (event.key.toLowerCase() === "i" && surahButton) {
+                if (event.key.toLowerCase() === "i" && surahButton) {
             surahButton.click();
-        }
-
-        if (event.key === "/" && searchButton) {
-            searchButton.click();
         }
 
         if (event.key === "Escape" && infoModal) {
