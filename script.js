@@ -311,12 +311,15 @@ function renderOldPageContent(container, pageNumber, pages, glyphMap) {
 
 function preloadAdjacentPages() {
     const isOldMushaf = getStoredMushaf() === "old";
-    const nextLeft = leftPageNumber + 2;
-    const nextRight = rightPageNumber + 2;
-    const prevLeft = leftPageNumber - 2;
-    const prevRight = rightPageNumber - 2;
+    const firstOpenPage = Math.min(leftPageNumber, rightPageNumber);
+    const lastOpenPage = Math.max(leftPageNumber, rightPageNumber);
+    const pagesToPreload = [];
 
-    const pagesToPreload = [nextLeft, nextRight, prevLeft, prevRight].filter(p => p >= 1 && p <= TOTAL_PAGES);
+    for (let pageNumber = firstOpenPage - 2; pageNumber <= lastOpenPage + 2; pageNumber += 1) {
+        if (pageNumber >= 1 && pageNumber <= TOTAL_PAGES) {
+            pagesToPreload.push(pageNumber);
+        }
+    }
 
     if (isOldMushaf) {
         // Vorladen der JSONs und TTF Fonts für den alten Mushaf
