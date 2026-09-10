@@ -544,6 +544,10 @@ function goToPage(pageNumber) {
 
 function updateZoom() {
 
+    if (window.matchMedia("(max-width: 650px)").matches) {
+        zoomLevel = Math.min(zoomLevel, 1);
+    }
+
     document.documentElement
         .style
         .setProperty(
@@ -872,8 +876,11 @@ if (modalBody) {
     });
 }
 
-let currentThemeIndex = Number(localStorage.getItem("quran_theme_index") || 0);
 const themes = ["theme-classic", "theme-sepia", "theme-dark", "theme-ocean"];
+const storedThemeIndex = Number(localStorage.getItem("quran_theme_index"));
+let currentThemeIndex = Number.isInteger(storedThemeIndex) && storedThemeIndex >= 0 && storedThemeIndex < themes.length
+    ? storedThemeIndex
+    : 0;
 
 document.body.classList.add(themes[currentThemeIndex]);
 
@@ -893,8 +900,12 @@ const bookSpine = document.querySelector(".book-spine");
 
 if (singleDoubleToggleBtn) {
     singleDoubleToggleBtn.addEventListener("click", () => {
+        if (window.matchMedia("(max-width: 650px)").matches) {
+            return;
+        }
+
         isSinglePageMode = !isSinglePageMode;
-        localStorage.setItem("quran_single_page", String(isSinglePageMode));
+        localStorage.setItem("quran_single_page_preference", String(isSinglePageMode));
         if (isSinglePageMode) {
             if (leftPageContainer) leftPageContainer.style.display = "none";
             if (bookSpine) bookSpine.style.display = "none";
@@ -906,10 +917,59 @@ if (singleDoubleToggleBtn) {
     });
 }
 
-isSinglePageMode = localStorage.getItem("quran_single_page") === "true";
-if (isSinglePageMode && leftPageContainer && bookSpine) {
-    leftPageContainer.style.display = "none";
-    bookSpine.style.display = "none";
+const storedSinglePageMode = localStorage.getItem("quran_single_page_preference");
+isSinglePageMode = storedSinglePageMode === "true";
+
+function syncMobileReaderLayout() {
+    const isCompactViewport = window.matchMedia("(max-width: 1100px)").matches;
+
+    if (isCompactViewport) {
+        isSinglePageMode = true;
+    } else {
+        isSinglePageMode = localStorage.getItem("quran_single_page_preference") === "true";
+    }
+
+    if (leftPageContainer && bookSpine) {
+        leftPageContainer.style.display = isSinglePageMode ? "none" : "";
+        bookSpine.style.display = isSinglePageMode ? "none" : "";
+    }
+
+    if (singleDoubleToggleBtn) {
+        singleDoubleToggleBtn.disabled = isCompactViewport;
+    }
+
+    updateViewButtonText();
+}
+
+syncMobileReaderLayout();
+window.addEventListener("resize", syncMobileReaderLayout);
+
+const reader = document.querySelector(".reader");
+let touchStartX = 0;
+let touchStartY = 0;
+
+if (reader) {
+    reader.addEventListener("touchstart", (event) => {
+        const [touch] = event.changedTouches;
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+    }, { passive: true });
+
+    reader.addEventListener("touchend", (event) => {
+        const [touch] = event.changedTouches;
+        const horizontalDistance = touch.clientX - touchStartX;
+        const verticalDistance = touch.clientY - touchStartY;
+
+        if (Math.abs(horizontalDistance) < 45 || Math.abs(horizontalDistance) < Math.abs(verticalDistance)) {
+            return;
+        }
+
+        if (horizontalDistance < 0) {
+            nextSpread();
+        } else {
+            previousSpread();
+        }
+    }, { passive: true });
 }
 
 previousButton.addEventListener(

@@ -19,9 +19,7 @@ body {
     display: flex;
     flex-direction: column;
 
-    background:
-        radial-gradient(circle at top, rgba(255,255,255,0.7), transparent 30%),
-        linear-gradient(180deg, rgba(241,236,227,0.96), rgba(227,221,211,0.98));
+    background: var(--body-bg, #e3ddd3);
     color: var(--text-color, #292722);
 
     font-family:
@@ -43,53 +41,93 @@ body {
 /* ================================= */
 
 body.theme-classic {
+    --body-bg: linear-gradient(180deg, #f3eee5, #e3ddd3);
+    --reader-bg: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.03));
     --bg-color: #e7e2d8;
     --text-color: #292722;
     --topbar-bg: rgba(255, 255, 255, 0.94);
     --topbar-border: rgba(0, 0, 0, 0.08);
     --page-bg: #fffdf8;
+    --mushaf-page-bg: #fffdf8;
+    --mushaf-text: #292722;
+    --mushaf-image-filter: none;
     --btn-bg: #ffffff;
     --btn-hover: #f1efe9;
     --btn-border: #d1ccc2;
+    --btn-gradient: linear-gradient(180deg, #ffffff, #f1eee8);
+    --btn-hover-gradient: linear-gradient(180deg, #ffffff, #e9e5dc);
+    --control-text: #292722;
+    --control-shadow: rgba(0, 0, 0, 0.1);
+    --page-button-border: rgba(170, 159, 144, 0.8);
     --spine-grad: linear-gradient(to right, #bbb5aa, #eee9de, #bbb5aa);
     --shadow: rgba(0, 0, 0, 0.16);
 }
 
 body.theme-sepia {
+    --body-bg: linear-gradient(180deg, #f6efdf, #e7d8ba);
+    --reader-bg: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(101,75,42,0.05));
     --bg-color: #f4ecd8;
     --text-color: #4a3b2c;
     --topbar-bg: rgba(245, 237, 220, 0.95);
     --topbar-border: rgba(90, 70, 50, 0.12);
     --page-bg: #fdfaf3;
+    --mushaf-page-bg: #fdfaf3;
+    --mushaf-text: #4a3b2c;
+    --mushaf-image-filter: none;
     --btn-bg: #f9f3e6;
     --btn-hover: #efe5d0;
     --btn-border: #d6c5a8;
+    --btn-gradient: linear-gradient(180deg, #fffaf0, #f0e4cc);
+    --btn-hover-gradient: linear-gradient(180deg, #fffaf0, #e5d4b6);
+    --control-text: #4a3b2c;
+    --control-shadow: rgba(70, 50, 30, 0.14);
+    --page-button-border: rgba(150, 121, 82, 0.7);
     --spine-grad: linear-gradient(to right, #cbbca3, #f5ebd6, #cbbca3);
     --shadow: rgba(70, 50, 30, 0.18);
 }
 
 body.theme-dark {
+    --body-bg: linear-gradient(180deg, #171717, #0d0d0d);
+    --reader-bg: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(0,0,0,0.18));
     --bg-color: #121212;
     --text-color: #e0e0e0;
     --topbar-bg: rgba(28, 28, 28, 0.95);
     --topbar-border: rgba(255, 255, 255, 0.1);
     --page-bg: #1e1e1e;
+    --mushaf-page-bg: #181818;
+    --mushaf-text: #f1f1f1;
+    --mushaf-image-filter: invert(1);
     --btn-bg: #2a2a2a;
     --btn-hover: #383838;
     --btn-border: #444444;
+    --btn-gradient: linear-gradient(180deg, #353535, #252525);
+    --btn-hover-gradient: linear-gradient(180deg, #444444, #303030);
+    --control-text: #f1f1f1;
+    --control-shadow: rgba(0, 0, 0, 0.5);
+    --page-button-border: rgba(150, 150, 150, 0.55);
     --spine-grad: linear-gradient(to right, #0a0a0a, #333333, #0a0a0a);
     --shadow: rgba(0, 0, 0, 0.6);
 }
 
 body.theme-ocean {
+    --body-bg: linear-gradient(180deg, #16243a, #0b1220);
+    --reader-bg: linear-gradient(180deg, rgba(94,145,190,0.08), rgba(0,0,0,0.2));
     --bg-color: #0f172a;
     --text-color: #e2e8f0;
     --topbar-bg: rgba(30, 41, 59, 0.95);
     --topbar-border: rgba(255, 255, 255, 0.08);
     --page-bg: #1e293b;
+    --mushaf-page-bg: #101c2c;
+    --mushaf-text: #e8f1fb;
+    --mushaf-image-filter: invert(1);
     --btn-bg: #334155;
     --btn-hover: #475569;
     --btn-border: #475569;
+    --btn-gradient: linear-gradient(180deg, #405977, #293b55);
+    --btn-hover-gradient: linear-gradient(180deg, #52708f, #344b69);
+    --control-text: #f1f5f9;
+    --control-shadow: rgba(0, 0, 0, 0.42);
+    --page-button-border: rgba(120, 160, 195, 0.6);
     --spine-grad: linear-gradient(to right, #090d16, #22304a, #090d16);
     --shadow: rgba(0, 0, 0, 0.5);
 }
@@ -198,11 +236,10 @@ body.theme-ocean {
     border-radius:
         10px;
 
-    background:
-        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(245,242,236,0.95));
+    background: var(--btn-gradient, #ffffff);
 
     color:
-        var(--text-color, #292722);
+        var(--control-text, var(--text-color, #292722));
 
     padding:
         0 10px;
@@ -213,7 +250,7 @@ body.theme-ocean {
     cursor:
         pointer;
 
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), 0 2px 6px rgba(0,0,0,0.06);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 2px 6px var(--control-shadow, rgba(0,0,0,0.06));
     transition: all 0.2s ease;
 }
 
@@ -234,8 +271,7 @@ body.theme-ocean {
 
 .toolbar-button:hover {
 
-    background:
-        var(--btn-hover, #f1efe9);
+    background: var(--btn-hover-gradient, var(--btn-hover, #f1efe9));
 
     transform: translateY(-1px);
 }
@@ -296,7 +332,7 @@ body.theme-ocean {
 
     overflow:
         auto;
-    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.02));
+    background: var(--reader-bg, linear-gradient(180deg, rgba(255,255,255,0.08), rgba(0,0,0,0.02)));
 }
 
 
@@ -316,7 +352,7 @@ body.theme-ocean {
         0.705;
 
     background:
-        var(--page-bg, #fffdf8);
+        var(--mushaf-page-bg, #fffdf8);
 
     overflow:
         hidden;
@@ -366,6 +402,9 @@ body.theme-ocean {
 
     object-fit:
         contain;
+
+    filter:
+        var(--mushaf-image-filter, none);
 
     user-select:
         none;
@@ -422,13 +461,12 @@ body.theme-ocean {
 
     border:
         1px solid
-        rgba(170, 159, 144, 0.8);
+        var(--page-button-border, rgba(170, 159, 144, 0.8));
 
     border-radius:
         50%;
 
-    background:
-        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(244,239,232,0.96));
+    background: var(--btn-gradient, #ffffff);
 
     font-size:
         32px;
@@ -442,8 +480,8 @@ body.theme-ocean {
 
     box-shadow:
         0 10px 24px
-        rgba(0,0,0,0.12),
-        inset 0 1px 0 rgba(255,255,255,0.9);
+        var(--control-shadow, rgba(0,0,0,0.12)),
+        inset 0 1px 0 rgba(255,255,255,0.18);
 
     z-index:
         10;
@@ -462,16 +500,15 @@ body.theme-ocean {
 
 .page-button:hover {
 
-    background:
-        linear-gradient(180deg, rgba(255,255,255,1), rgba(240,236,228,1));
+    background: var(--btn-hover-gradient, var(--btn-hover, #f1efe9));
 
     transform:
         translateY(-50%)
         scale(1.06);
     box-shadow:
         0 14px 28px
-        rgba(0,0,0,0.16),
-        inset 0 1px 0 rgba(255,255,255,0.95);
+        var(--control-shadow, rgba(0,0,0,0.16)),
+        inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
 
@@ -569,6 +606,9 @@ body.theme-ocean {
     background:
         var(--btn-bg, white);
 
+    color:
+        var(--control-text, var(--text-color, #292722));
+
     font-size:
         14px;
 }
@@ -589,13 +629,15 @@ body.theme-ocean {
         6px;
 
     background:
-        #2d2a25;
+        var(--control-text, #2d2a25);
 
     color:
-        white;
+        var(--page-bg, white);
 
     cursor:
         pointer;
+
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 
@@ -666,6 +708,10 @@ body.theme-ocean {
     font-size: 22px;
     cursor: pointer;
     color: var(--text-color, #292722);
+    border-radius: 6px;
+    padding: 2px 6px;
+    min-width: 40px;
+    min-height: 40px;
 }
 
 .modal-body {
@@ -702,19 +748,23 @@ body.theme-ocean {
 
 .modal-item {
     padding: 12px 14px;
+    min-height: 48px;
     border-radius: 8px;
     background: var(--btn-bg, #ffffff);
     border: 1px solid var(--btn-border, #d1ccc2);
+    color: var(--control-text, var(--text-color, #292722));
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
     transition: background 0.2s, transform 0.1s;
     font-size: 14px;
+    font-family: inherit;
+    appearance: none;
 }
 
 .modal-item:hover {
-    background: var(--btn-hover, #f1efe9);
+    background: var(--btn-hover-gradient, var(--btn-hover, #f1efe9));
     transform: translateY(-1px);
 }
 
@@ -727,6 +777,32 @@ body.theme-ocean {
 /* ================================= */
 /* TABLET                            */
 /* ================================= */
+
+@media (max-width: 1100px) {
+    .toolbar {
+        flex-wrap: wrap;
+        overflow: visible;
+    }
+
+    .toolbar-divider {
+        display: none;
+    }
+
+    .toolbar-button {
+        min-height: 42px;
+        touch-action: manipulation;
+    }
+
+    .reader {
+        padding-left: 64px;
+        padding-right: 64px;
+    }
+
+    .page-container,
+    .book-spine {
+        height: min(72vh, calc(100dvh - 190px), 700px);
+    }
+}
 
 @media (max-width: 900px) {
     .topbar {
@@ -803,82 +879,112 @@ body.theme-ocean {
 @media (max-width: 650px) {
 
     body {
-
-        overflow:
-            auto;
-
+        overflow: hidden;
+        min-height: 100dvh;
     }
 
 
     .topbar {
 
-        height:
-            auto;
-
-        min-height:
-            58px;
-
-        padding:
-            10px 12px;
-
-        flex-wrap:
-            wrap;
-
-        gap:
-            8px;
+        min-height: 0;
+        padding: 10px 12px 8px;
+        gap: 8px 12px;
 
     }
 
 
     .topbar-title {
 
-        font-size:
-            15px;
+        font-size: 15px;
+        line-height: 1.2;
 
     }
 
 
     .page-info {
 
-        order:
-            3;
+        order: 0;
+        width: auto;
+        margin-left: auto;
+        text-align: right;
+        font-size: 13px;
 
-        width:
-            100%;
+    }
 
-        text-align:
-            center;
+    .toolbar {
+        order: 3;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 6px;
+        overflow: visible;
+        padding: 0;
+    }
 
+    .toolbar-divider {
+        display: none;
+    }
+
+    .toolbar-button,
+    .toolbar-button#zoomOut,
+    .toolbar-button#zoomIn {
+        width: 100%;
+        min-width: 0;
+        height: 42px;
+        padding: 0;
+        border-radius: 9px;
+        font-size: 19px;
+        touch-action: manipulation;
+    }
+
+    .button-label {
+        display: none;
+    }
+
+    #zoomValue {
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
     }
 
 
     .reader {
 
-        padding:
-            20px 45px;
+        min-height: 0;
+        padding: 12px 48px;
+        overflow: hidden;
+        touch-action: pan-y;
 
     }
 
 
-    .page-container,
+    .page-container {
+        width: min(calc(100vw - 96px), calc((100dvh - 220px) * 0.705));
+        height: auto;
+        max-width: none;
+        aspect-ratio: 0.705;
+
+    }
+
     .book-spine {
+        height: min(calc(100dvh - 220px), 560px);
+        width: 2px;
+    }
 
-        height:
-            65vh;
-
+    .toolbar-button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
     }
 
 
     .page-button {
 
-        width:
-            36px;
-
-        height:
-            36px;
-
-        font-size:
-            17px;
+        width: 44px;
+        height: 44px;
+        font-size: 19px;
+        touch-action: manipulation;
 
     }
 
@@ -901,15 +1007,35 @@ body.theme-ocean {
 
     .bottom-bar {
 
-        flex-direction:
-            column;
+        min-height: 0;
+        flex-direction: column;
+        gap: 7px;
+        padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
 
-        gap:
-            8px;
+    }
 
-        padding:
-            10px;
+    .page-jump {
+        width: 100%;
+        justify-content: center;
+        gap: 7px;
+    }
 
+    .page-jump input,
+    .page-jump button {
+        height: 40px;
+        font-size: 15px;
+    }
+
+    .page-jump input {
+        width: 82px;
+    }
+
+    .page-jump button {
+        padding: 0 16px;
+    }
+
+    .keyboard-help {
+        display: none;
     }
 
 }
@@ -923,8 +1049,8 @@ body.theme-ocean {
     gap: 0.2vh;
     padding: 4% 3.5%;
     direction: rtl;
-    background: var(--page-bg, #fffdf8);
-    color: var(--text-color, #292722);
+    background: var(--mushaf-page-bg, #fffdf8);
+    color: var(--mushaf-text, #292722);
     overflow: hidden;
     border-radius: 0;
 }
@@ -939,7 +1065,7 @@ body.theme-ocean {
     direction: rtl;
     font-size: clamp(14px, 3.4vh, 36px);
     line-height: 1;
-    color: var(--text-color, #292722);
+    color: var(--mushaf-text, #292722);
     letter-spacing: 0.01em;
 }
 
